@@ -2,7 +2,6 @@ package rabbit
 
 import (
 	"github.com/streadway/amqp"
-	"encoding/json"
 	"fmt"
 )
 
@@ -36,40 +35,8 @@ func (c *Client) Close() {
 	c.Connection.Close()
 }
 
-//func (c *Client) Connect(exchangeType string, exchangeName string) error {
-//	c.Exchange = exchangeName
-//
-//	cx, err := amqp.Dial(c.Url)
-//	if err != nil {
-//		return err
-//	}
-//	c.Connection = cx
-//
-//	channel, err := cx.Channel()
-//	if err != nil {
-//		return err
-//	}
-//	c.Channel = channel
-//
-//	err = channel.ExchangeDeclare(
-//		exchangeName, // name
-//		exchangeType, // type
-//		true,         // durable
-//		false,        // auto-deleted
-//		false,        // internal
-//		false,        // noWait
-//		nil,          // arguments
-//	)
-//	if err != nil {
-//		return err
-//	}
-//
-//	c.Connected = true
-//	return nil
-//}
-
-func (c *Client) Publisher(exchangeName string, exchangeType string, encode func(interface{}) []byte) (chan interface{}, error) {
-	publishing := make(chan interface{}, 1)
+func (c *Client) Publisher(exchangeName string, exchangeType string) (chan []byte, error) {
+	publishing := make(chan []byte, 1)
 
 	if err := c.exchange(exchangeName, exchangeType); err != nil {
 		return nil, err
@@ -82,11 +49,7 @@ func (c *Client) Publisher(exchangeName string, exchangeType string, encode func
 			//var data []byte
 			var err error
 
-			//if data, err = msg.Marshal(); err != nil {
-			//	fmt.Println("error marshaling: ", err)
-			//}
-
-			if err = c.publish(exchangeName, encode(msg)); err != nil {
+			if err = c.publish(exchangeName, msg); err != nil {
 				fmt.Println("error publishing: ", err)
 				return
 			}
@@ -96,8 +59,8 @@ func (c *Client) Publisher(exchangeName string, exchangeType string, encode func
 	return publishing, nil
 }
 
-func (c *Client) Consumer(exchangeName string, exchangeType string, queueName string, decode func([]byte) interface{}) (chan interface{}, error) {
-	consuming := make(chan interface{}, 1)
+func (c *Client) Consumer(exchangeName string, exchangeType string, queueName string) (chan []byte, error) {
+	consuming := make(chan []byte, 1)
 	var queue amqp.Queue
 	var err error
 
@@ -110,49 +73,20 @@ func (c *Client) Consumer(exchangeName string, exchangeType string, queueName st
 	}
 
 	go func() {
-		deliveries, err := c.Channel.Consume(
-			queue.Name, // name
-			"",      // consumerTag,
-			false,      // noAck
-			false,      // exclusive
-			false,      // noLocal
-			false,      // noWait
-			nil,        // arguments
-		)
-		if err != nil {
+		var deliveries <-chan amqp.Delivery
+		if deliveries, err = c.consume(queue); err != nil {
 			fmt.Println("error consuming: ", err)
 			return
 		}
 
 		for raw := range deliveries {
-			consuming <- decode(raw.Body)
+			//fmt.Println("consume raw: ", string(raw.Body))
+			consuming <- raw.Body
 		}
 	}()
 
 	return consuming, nil
 }
-
-//func (c *Client) Publish(message string) error {
-//	err := c.Channel.Publish(
-//		c.Exchange, // publish to an exchange
-//		"", // routing to 0 or more queues
-//		false, // mandatory
-//		false, // immediate
-//		amqp.Publishing{
-//			Headers:         amqp.Table{},
-//			ContentType:     "text/plain",
-//			ContentEncoding: "",
-//			Body:            []byte(message),
-//			DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
-//			Priority:        0, // 0-9
-//			// a bunch of application/implementation-specific fields
-//		},
-//	)
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
 
 func (c *Client) exchange(exchangeName, exchangeType string) error {
 	return c.Channel.ExchangeDeclare(
@@ -166,27 +100,33 @@ func (c *Client) exchange(exchangeName, exchangeType string) error {
 	)
 }
 
-func (c *Client) publish(exchangeName string, msg interface{}) error {
-	var data []byte
-	var err error
-
-	if data, err = json.Marshal(&msg); err != nil {
-		return fmt.Errorf("error marshaling: %s", err)
-	}
+func (c *Client) publish(exchangeName string, data []byte) error {
 	return c.Channel.Publish(
 		exchangeName, // publish to an exchange
 		"", // routing to 0 or more queues
 		false, // mandatory
 		false, // immediate
 		amqp.Publishing{
-			Headers:         amqp.Table{},
-			ContentType:     "text/plain",
-			ContentEncoding: "utf8",
+			//Headers:         amqp.Table{},
+			//ContentType:     "text/plain",
+			//ContentEncoding: "",
 			Body:            data,
-			DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
-			Priority:        0, // 0-9
+			//DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
+			//Priority:        0, // 0-9
 			// a bunch of application/implementation-specific fields
 		},
+	)
+}
+
+func (c *Client) consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
+	return c.Channel.Consume(
+		queue.Name, // name
+		"",      // consumerTag,
+		true,      // AutoAck
+		false,      // exclusive
+		false,      // noLocal
+		false,      // noWait
+		nil,        // arguments
 	)
 }
 
