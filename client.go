@@ -35,7 +35,7 @@ func (c *Client) Close() {
 	c.Connection.Close()
 }
 
-func (c *Client) Publisher(exchangeName string, exchangeType string) (chan []byte, error) {
+func (c *Client) Producer(exchangeName string, exchangeType string) (chan []byte, error) {
 	publishing := make(chan []byte, 1)
 
 	if err := c.exchange(exchangeName, exchangeType); err != nil {
