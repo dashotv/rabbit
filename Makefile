@@ -2,6 +2,7 @@
 all: test
 
 test: build
+	go test
 
 build: deps
 	go build
