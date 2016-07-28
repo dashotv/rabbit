@@ -75,7 +75,7 @@ func TestNewSubscriber(t *testing.T) {
 		sub.Listen()
 	}()
 
-	timer := time.After(time.Second * 30)
+	timer := time.After(time.Second * 5)
 	select {
 	case <-done:
 		//fmt.Println("done")
