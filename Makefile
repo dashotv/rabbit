@@ -1,8 +1,8 @@
 
 all: build
 
-build:
-	go build -o "dtv-rabbit" client.go
+build: deps
+	go build
 
 deps:
-	gvt restore
+	glide install
