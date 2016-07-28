@@ -8,10 +8,6 @@ import (
 )
 
 func TestNewSubscriber(t *testing.T) {
-	var client *Client
-	var err error
-	var sub *Subscriber
-	var publishing chan []byte
 	done := make(chan int, 1)
 
 	url := "amqp://guest:guest@localhost:5672/"
@@ -19,11 +15,13 @@ func TestNewSubscriber(t *testing.T) {
 	exchangeType := "fanout"
 	queueName := "dashotv.testing.subscriber"
 
-	s := fmt.Sprintf("timer: %s", time.Now())
 	p := NewMessage(queueName)
-	p.Data["message"] = s
+	p.Data["message"] = fmt.Sprintf("timer: %s", time.Now())
 
 	go func() {
+		var client *Client
+		var err error
+		var publishing chan []byte
 		var m []byte
 		var e error
 
@@ -41,12 +39,14 @@ func TestNewSubscriber(t *testing.T) {
 			t.Error("marshalling: ", e)
 		}
 
-		fmt.Println("sending: ",string(m))
+		//fmt.Println("sending: ",string(m))
 		publishing <- m
-		//fmt.Println("publishing finished")
+		fmt.Println("publishing finished")
 	}()
 
 	go func() {
+		var sub *Subscriber
+		var err error
 		var v string
 		var ok bool
 
@@ -55,6 +55,8 @@ func TestNewSubscriber(t *testing.T) {
 		}
 
 		f := func(name string, data map[string]string) {
+			fmt.Println("received: ", name)
+
 			if v, ok = data["message"]; !ok {
 				t.Error("missing message key")
 			}
@@ -73,7 +75,7 @@ func TestNewSubscriber(t *testing.T) {
 		sub.Listen()
 	}()
 
-	timer := time.After(time.Second * 5)
+	timer := time.After(time.Second * 30)
 	select {
 	case <-done:
 		//fmt.Println("done")
