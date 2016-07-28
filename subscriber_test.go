@@ -40,7 +40,8 @@ func TestNewSubscriber(t *testing.T) {
 		if m, e = json.Marshal(p); e != nil {
 			t.Error("marshalling: ", e)
 		}
-		//fmt.Println("sending: ",string(m))
+
+		fmt.Println("sending: ",string(m))
 		publishing <- m
 		//fmt.Println("publishing finished")
 	}()
@@ -50,7 +51,7 @@ func TestNewSubscriber(t *testing.T) {
 		var ok bool
 
 		if sub, err = NewSubscriber(url, exchangeName, exchangeType, queueName); err != nil {
-			t.Error("failed to create subscriber")
+			t.Error("failed to create subscriber: ", err)
 		}
 
 		f := func(name string, data map[string]string) {
@@ -68,7 +69,7 @@ func TestNewSubscriber(t *testing.T) {
 		//fmt.Println("adding function")
 		sub.Add(queueName, f)
 
-		//fmt.Println("subscriber listen")
+		fmt.Println("subscriber listen")
 		sub.Listen()
 	}()
 
