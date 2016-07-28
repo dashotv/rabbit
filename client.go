@@ -35,6 +35,25 @@ func (c *Client) Close() {
 	c.Connection.Close()
 }
 
+//func (c *Client) Publisher(exchangeName, exchangeType string, msg []byte) {
+//	// just publish one message?
+//}
+
+//func (c *Client) Subscriber(exchangeName, exchangeType, queueName string) (*Subscriber, error) {
+//	var queue amqp.Queue
+//	var err error
+//
+//	if err = c.exchange(exchangeName, exchangeType); err != nil {
+//		return nil, err
+//	}
+//
+//	if queue, err = c.queue(exchangeName, exchangeType, queueName); err != nil {
+//		return nil, err
+//	}
+//
+//	return NewSubscriber(c, queue), nil
+//}
+
 func (c *Client) Producer(exchangeName string, exchangeType string) (chan []byte, error) {
 	publishing := make(chan []byte, 1)
 

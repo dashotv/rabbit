@@ -10,7 +10,8 @@ func TestMessage_MarshalSimple(t *testing.T) {
 	var err error
 	var d []byte
 
-	m = &Message{Name: "simple", Data: "simple message test"}
+	m = NewMessage("simple")
+	m.Data["message"] = "simple message test"
 	if d, err = m.Marshal(); err != nil {
 		t.Error(err)
 	}
@@ -21,7 +22,11 @@ func TestMessage_MarshalSimple(t *testing.T) {
 		t.Error("names do not match")
 	}
 
-	if n.Data != m.Data {
+	if _, ok := n.Data["message"]; !ok {
+		t.Error("missing message key")
+	}
+
+	if n.Data["message"] != m.Data["message"] {
 		t.Error("data does not match")
 	}
 }

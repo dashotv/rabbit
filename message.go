@@ -2,12 +2,11 @@ package rabbit
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type Message struct {
 	Name string
-	Data interface{}
+	Data map[string]string
 }
 
 type Messenger interface {
@@ -15,9 +14,8 @@ type Messenger interface {
 	Unmarshal([]byte) (error)
 }
 
-func NewMessage(name string, object interface{}) *Message {
-	fmt.Println("object: ", object)
-	return &Message{Name: name, Data: object }
+func NewMessage(name string) *Message {
+	return &Message{Name: name, Data: make(map[string]string) }
 }
 
 func NewMessageFromJson(data []byte) *Message {
