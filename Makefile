@@ -1,5 +1,7 @@
 
-all: build
+all: test
+
+test: build
 
 build: deps
 	go build
