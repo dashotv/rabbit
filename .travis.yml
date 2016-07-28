@@ -1,5 +1,8 @@
 language: go
+sudo: required # for rabbit
 go:
   - '1.6'
 services:
   - rabbitmq
+after_script:
+  - "rabbitmqadmin list queues"
