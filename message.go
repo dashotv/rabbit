@@ -6,7 +6,7 @@ import (
 
 type Message struct {
 	Name string
-	Data map[string]string
+	Data map[string]string //TODO: figure this out
 }
 
 type Messenger interface {

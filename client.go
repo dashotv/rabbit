@@ -152,8 +152,8 @@ func (c *Client) consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 func (c *Client) queue(exchangeName, exchangeType, queueName string) (queue amqp.Queue, err error) {
 	queue, err = c.Channel.QueueDeclare(
 		queueName, // name of the queue
-		true,      // durable
-		false,     // delete when usused
+		false,     // durable
+		true,      // delete when unused
 		false,     // exclusive
 		false,     // noWait
 		nil,       // arguments
