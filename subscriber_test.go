@@ -1,10 +1,10 @@
 package rabbit
 
 import (
-	"testing"
-	"fmt"
-	"time"
 	"encoding/json"
+	"fmt"
+	"testing"
+	"time"
 )
 
 func TestNewSubscriber(t *testing.T) {

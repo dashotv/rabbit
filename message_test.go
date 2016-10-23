@@ -1,8 +1,8 @@
 package rabbit
 
 import (
-	"testing"
 	"encoding/json"
+	"testing"
 )
 
 func TestMessage_MarshalSimple(t *testing.T) {

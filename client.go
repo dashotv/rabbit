@@ -1,8 +1,8 @@
 package rabbit
 
 import (
-	"github.com/streadway/amqp"
 	"fmt"
+	"github.com/streadway/amqp"
 )
 
 var ()
@@ -17,7 +17,7 @@ type Client struct {
 func NewClient(url string) (*Client, error) {
 	var err error
 
-	c := &Client{Url: url, Connected: false }
+	c := &Client{Url: url, Connected: false}
 
 	if c.Connection, err = amqp.Dial(c.Url); err != nil {
 		return nil, err
@@ -111,25 +111,25 @@ func (c *Client) exchange(exchangeName, exchangeType string) error {
 	return c.Channel.ExchangeDeclare(
 		exchangeName, // name
 		exchangeType, // type
-		true, // durable
-		false, // auto-deleted
-		false, // internal
-		false, // noWait
-		nil, // arguments
+		true,         // durable
+		false,        // auto-deleted
+		false,        // internal
+		false,        // noWait
+		nil,          // arguments
 	)
 }
 
 func (c *Client) publish(exchangeName string, data []byte) error {
 	return c.Channel.Publish(
 		exchangeName, // publish to an exchange
-		"", // routing to 0 or more queues
-		false, // mandatory
-		false, // immediate
+		"",           // routing to 0 or more queues
+		false,        // mandatory
+		false,        // immediate
 		amqp.Publishing{
 			//Headers:         amqp.Table{},
 			//ContentType:     "text/plain",
 			//ContentEncoding: "",
-			Body:            data,
+			Body: data,
 			//DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
 			//Priority:        0, // 0-9
 			// a bunch of application/implementation-specific fields
@@ -140,8 +140,8 @@ func (c *Client) publish(exchangeName string, data []byte) error {
 func (c *Client) consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 	return c.Channel.Consume(
 		queue.Name, // name
-		"",      // consumerTag,
-		true,      // AutoAck
+		"",         // consumerTag,
+		true,       // AutoAck
 		false,      // exclusive
 		false,      // noLocal
 		false,      // noWait
@@ -163,11 +163,11 @@ func (c *Client) queue(exchangeName, exchangeType, queueName string) (queue amqp
 	}
 
 	err = c.Channel.QueueBind(
-		queue.Name, // name of the queue
-		"",        // bindingKey
-		exchangeName,   // sourceExchange
-		false,      // noWait
-		nil,        // arguments
+		queue.Name,   // name of the queue
+		"",           // bindingKey
+		exchangeName, // sourceExchange
+		false,        // noWait
+		nil,          // arguments
 	)
 	if err != nil {
 		return queue, fmt.Errorf("Queue Bind: %s", err)

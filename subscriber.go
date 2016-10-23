@@ -1,19 +1,19 @@
 package rabbit
 
 import (
-	"github.com/streadway/amqp"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/streadway/amqp"
 )
 
 type Subscriber struct {
 	client *Client
-	queue amqp.Queue
+	queue  amqp.Queue
 
 	subscriptions map[string]sList
 }
 
-type sFunction func(string,map[string]string)
+type sFunction func(string, map[string]string)
 
 type sList []sFunction
 

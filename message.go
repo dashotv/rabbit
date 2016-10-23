@@ -11,11 +11,11 @@ type Message struct {
 
 type Messenger interface {
 	Marshal() ([]byte, error)
-	Unmarshal([]byte) (error)
+	Unmarshal([]byte) error
 }
 
 func NewMessage(name string) *Message {
-	return &Message{Name: name, Data: make(map[string]string) }
+	return &Message{Name: name, Data: make(map[string]string)}
 }
 
 func NewMessageFromJson(data []byte) *Message {
